@@ -217,6 +217,58 @@ Now the fun part. We will create a function `checkUrl()` that uses axios to make
 4. add `this.urlGauge.labels("example", url).set(1)` and `.set(0)` to set the current metric value. The labels are important because they will be used in you queries to find metrics and create Grafana visualizations.
 5. Finally, add your `modules.exports = new Health();` to the end of your `health.js file`. 
 
+Below is the complete health.js class file which can also be found on [github](https://github.com/voxda/synthetic-monitor/blob/main/services/health.js). 
+```javascript
+const prometheus = require('prom-client');
+const https = require('https');
+const axios = require('axios').create({
+    httpsAgent: new https.Agent({
+        rejectUnauthorized: false
+    })
+})
+
+class Health {
+    constructor(){
+        if(Health.instance) {
+            return Health.instance;
+        }
+
+        prometheus.collectDefaultMetrics({ register: new prometheus.Registry(), timeout: 5000 });
+        prometheus.register.setDefaultLabels({app: 'synthetic-monitor'});
+
+        this.endpoints = require('../resources/endpoints.json');
+
+        this.urlGauge = new prometheus.Gauge({
+            name: 'up_down',
+            help: 'Shows if a url is up or down',
+            labelNames: ['name', 'url']
+        })
+    }
+
+    check() {
+        setInterval( () => {
+            this.endpoints.urls.forEach(url => {
+                this.checkUrl(url);
+            })
+        }, 30000 );
+
+        return true
+    }
+
+    checkUrl(url) {
+        axios.get(url.url)
+        .then(response => {
+            console.log(`+++ url ${url.url} is up`);
+            this.urlGauge.labels("example", url.url).set(1);
+        })
+        .catch(error => {
+            console.log(`--- url ${url.url} is down`);
+            this.urlGauge.labels("example", url.url).set(0)
+        })
+    }
+}
+module.exports = new Health();
+```
 ### Step 4: Let's try it out!
 1. Open a terminal and run the following commands to install your dependencies.
 
