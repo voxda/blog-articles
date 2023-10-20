@@ -286,7 +286,7 @@ npm install axios
 
 4. You will see console log messages being produced if you added them in you `.then` and `.catch` functions.
 
-![Console output Easy Synthetic Monitoring](https://voxda.io/wp-content/uploads/2023/10/ConsoleOutputMonitor.png)
+![Console output Easy Synthetic Monitoring](http://voxda.io/wp-content/uploads/2023/10/ConsoleOutputMonitor2.png)
 
 ### Summary Easy Synthetic Monitoring
 In this tutorial you learned how to create a nodejs service that acts as a synthetic monitor for a list of urls. You learned how to create custom prometheus Gauge metrics that can be consumed by Prometheus scaping jobs.   
